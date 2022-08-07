@@ -76,6 +76,10 @@ _start:
 
 	movew	#0x2700, %sr			/* disable all interrupts */
 
+#ifdef CONFIG_MACKEREL
+	movel #0x8000, %sp				/* set stack pointer to 0x8000 */
+#endif
+
 /*****************************************************************************
  * Setup PLL and wait for it to settle (in 68x328 cpu's).
  * Also, if enabled, init serial port.

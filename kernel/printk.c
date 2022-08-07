@@ -48,6 +48,8 @@
 
 #include <asm/uaccess.h>
 
+#include <asm/mackerel.h>
+
 #define CREATE_TRACE_POINTS
 #include <trace/events/printk.h>
 
@@ -1680,6 +1682,18 @@ EXPORT_SYMBOL(printk_emit);
  */
 asmlinkage int printk(const char *fmt, ...)
 {
+#ifdef CONFIG_MACKEREL
+	va_list args;
+	int r;
+
+	char buf[512];
+	va_start(args, fmt);
+	r = vscnprintf(buf, sizeof(buf), fmt, args);
+	mfp_puts(buf);
+	va_end(args);
+
+	return r;
+#else
 	va_list args;
 	int r;
 
@@ -1696,6 +1710,8 @@ asmlinkage int printk(const char *fmt, ...)
 	va_end(args);
 
 	return r;
+
+#endif // CONFIG_MACKEREL
 }
 EXPORT_SYMBOL(printk);
 

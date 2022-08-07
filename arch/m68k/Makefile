@@ -117,6 +117,7 @@ core-$(CONFIG_M68KFPU_EMU)	+= arch/m68k/math-emu/
 core-$(CONFIG_M68360)		+= arch/m68k/platform/68360/
 core-$(CONFIG_M68000)		+= arch/m68k/platform/68000/
 core-$(CONFIG_COLDFIRE)		+= arch/m68k/platform/coldfire/
+# core-$(CONFIG_MACKEREL)		+= arch/m68k/platform/68000/mackerel/
 
 
 all:	zImage
@@ -137,6 +138,27 @@ ifndef CONFIG_KGDB
 	$(STRIP) vmlinux.tmp
 	gzip -9c vmlinux.tmp >vmlinux.gz
 	rm vmlinux.tmp
+
+
+ifdef CONFIG_MACKEREL
+	mkdir -p images
+	
+	# $(CROSS_COMPILE)objcopy -O binary --remove-section=.romvec \
+	# 		--remove-section=.text --remove-section=.ramvec \
+	# 		--remove-section=.bss --remove-section=.eram \
+	# 		vmlinux images/linux.data
+
+	# $(CROSS_COMPILE)objcopy -O binary --remove-section=.ramvec \
+	# 		--remove-section=.bss --remove-section=.data \
+	# 		--remove-section=.eram \
+	# 		--set-section-flags=.romvec=CONTENTS,ALLOC,LOAD,READONLY,CODE \
+	# 		vmlinux images/linux.text
+
+	# cat images/linux.text images/linux.data > images/image.bin
+
+	$(CROSS_COMPILE)objcopy -O binary vmlinux images/image.bin
+endif
+
 else
 	gzip -9c vmlinux >vmlinux.gz
 endif
