@@ -3,40 +3,51 @@
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <asm/traps.h>
+#include <asm/machdep.h>
+#include <asm/mackerel.h>
 
-extern e_vector *_ramvec;
+asmlinkage void system_call(void);
+asmlinkage irqreturn_t inthandler1(void);
 
-static void intc_irq_enable(struct irq_data *d)
+void process_int(int vec, struct pt_regs *fp)
 {
+    MEM(MFP_GPDR) += 1;
+    do_IRQ(1, fp);
 }
 
-static void intc_irq_disable(struct irq_data *d)
+static void intc_irq_unmask(struct irq_data *d)
 {
+    // TODO
+}
+
+static void intc_irq_mask(struct irq_data *d)
+{
+    // TODO
 }
 
 static struct irq_chip intc_irq_chip = {
-	.name		= "MACKEREL-INTC",
-	.irq_enable	= intc_irq_enable,
-	.irq_disable	= intc_irq_disable,
+    .name = "MACKEREL-INTC",
+    .irq_mask = intc_irq_mask,
+    .irq_unmask = intc_irq_unmask,
 };
-
-asmlinkage irqreturn_t inthandler_vec1(void);
 
 void __init trap_init(void)
 {
     printk("trap_init()\r\n");
 
-    _ramvec[0x48] = (e_vector)inthandler_vec1;
+    _ramvec[32] = system_call;
+    _ramvec[0x48] = inthandler1;
 }
 
 void __init init_IRQ(void)
 {
-    int irq;
+    int i;
 
     printk("init_IRQ()\r\n");
 
-    for (irq = 0; (irq < NR_IRQS); irq++)
+    for (i = 0; (i < NR_IRQS); i++)
     {
-        irq_set_chip_and_handler(irq, &intc_irq_chip, handle_simple_irq);
+        irq_set_chip(i, &intc_irq_chip);
+        irq_set_handler(i, handle_level_irq);
     }
 }

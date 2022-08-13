@@ -474,7 +474,7 @@ asmlinkage void __init start_kernel(void)
 	char * command_line;
 	extern const struct kernel_param __start___param[], __stop___param[];
 
-	printk("start_kernel()\r\n");
+	printk("\r\n\r\n\r\n****** start_kernel() ****** \r\n\r\n");
 
 	/*
 	 * Need to run as early as possible, to initialize the

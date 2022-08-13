@@ -134,7 +134,11 @@ inthandler1:
 	and	#0x3ff, %d0
 
 	movel	%sp,%sp@-
-	movel	#65,%sp@- 		/*  put vector # on stack*/
+
+	; Mackerel 68k - hardcode the interrupt number to 1
+	movel	#1,%sp@- 		/*  put vector # on stack*/
+	
+	
 	jbsr	process_int		/*  process the IRQ*/
 3:     	addql	#8,%sp			/*  pop parameters off stack*/
 	bra	ret_from_interrupt
